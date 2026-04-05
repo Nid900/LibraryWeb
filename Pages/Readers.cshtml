@@ -1,0 +1,100 @@
+﻿@page
+@model ReadersModel
+@{ ViewData["Title"] = "Читатели"; }
+
+<style>
+    /* Исправляем видимость текста подсказок для темной и светлой темы */
+    .form-control::placeholder {
+        color: #adb5bd !important; /* Светло-серый цвет для плейсхолдера */
+        opacity: 1;
+    }
+
+    /* Цвет вводимого текста адаптируется под тему */
+    .form-control {
+        color: inherit !important;
+    }
+
+    /* Стиль для надписи под полем телефона */
+    .form-text-custom {
+        color: #6c757d;
+        font-size: 0.8rem;
+        margin-top: 4px;
+    }
+
+    /* В темной теме делаем текст подсказки чуть ярче, чтобы не сливался */
+    [data-bs-theme="dark"] .form-control::placeholder {
+        color: #999 !important;
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">👥 Читатели</h2>
+        <button class="btn btn-success shadow-sm px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#addReaderModal">+ Новый читатель</button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">№</th>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                        <th class="text-end pe-4">Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{ int j = 1; }
+                    @foreach (var reader in Model.Readers) {
+                        <tr>
+                            <td class="ps-4 fw-bold">@(j++)</td>
+                            <td>@reader.FullName</td>
+                            <td>@reader.Phone</td>
+                            <td class="text-end pe-4">
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@reader.Id" onsubmit="return confirm('Удалить читателя?')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">🗑 Удалить</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@* МОДАЛЬНОЕ ОКНО РЕГИСТРАЦИИ *@
+<div class="modal fade" id="addReaderModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg border-0">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold">👤 Регистрация</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">ФИО</label>
+                        <input type="text" name="fullName" class="form-control" placeholder="Иванов Иван Иванович" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small">ТЕЛЕФОН (ТОЛЬКО ЦИФРЫ)</label>
+                        <input type="text" 
+                               name="phone" 
+                               class="form-control" 
+                               placeholder="89001234567" 
+                               required 
+                               maxlength="12"
+                               oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <div class="form-text-custom">Буквы вводить нельзя.</div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0">
+                    <button type="button" class="btn btn-light rounded-pill" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-success rounded-pill px-4 shadow">Зарегистрировать</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
