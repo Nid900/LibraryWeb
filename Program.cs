@@ -3,15 +3,20 @@ using LibraryWeb.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Подключаем базу данных SQLite
+// 1. ИСПРАВЛЕННЫЙ ПУТЬ К БАЗЕ:
+// Берем путь из переменных Railway, если её нет — используем локальную базу
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=library.db";
+
 builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseSqlite("Data Source=library.db"));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddRazorPages();
 
+// 2. ДОБАВЛЯЕМ ПОДДЕРЖКУ КОНТРОЛЛЕРОВ (для скачивания базы):
+builder.Services.AddControllersWithViews();
+
 var app = builder.Build();
 
-// Код для автоматического создания базы и тестовой книги
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
@@ -33,6 +38,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
+
+// 3. ВКЛЮЧАЕМ МАРШРУТЫ ДЛЯ КОНТРОЛЛЕРОВ:
+app.MapControllers(); 
 app.MapRazorPages();
 
 app.Run();
